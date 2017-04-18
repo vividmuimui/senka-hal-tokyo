@@ -9,6 +9,9 @@ public class MainController : MonoBehaviour
 
     int playerId; // プレイヤーID
 
+    [SerializeField]
+    GameObject playerPrefab;
+
     void Start()
     {
         webSocket = new WebSocket("ws://localhost:5678");
