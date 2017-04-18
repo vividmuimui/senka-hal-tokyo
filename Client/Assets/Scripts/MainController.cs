@@ -7,6 +7,8 @@ public class MainController : MonoBehaviour
 {
     WebSocket webSocket;    // WebSocketコネクション
 
+    int playerId; // プレイヤーID
+
     void Start()
     {
         webSocket = new WebSocket("ws://localhost:5678");
@@ -43,6 +45,12 @@ public class MainController : MonoBehaviour
                         Debug.Log(pong.Payload.Message);
                         break;
                     }
+                case "login_response":
+                    {
+                        var loginResponse = JsonUtility.FromJson<RPC.LoginResponse>(eventArgs.Data);
+                        MainThreadExecutor.Enqueue(() => OnLoginResponse(loginResponse.Payload));
+                        break;
+                    }
             }
         };
 
@@ -67,5 +75,11 @@ public class MainController : MonoBehaviour
 
         webSocket.Send(jsonMessage);
         Debug.Log(">> Login");
+    }
+
+    void OnLoginResponse(RPC.LoginResponsePayload response)
+    {
+        Debug.Log("<< LoginResponse");
+        playerId = response.Id;
     }
 }
