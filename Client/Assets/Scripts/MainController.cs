@@ -40,4 +40,9 @@ public class MainController : MonoBehaviour
     void Update()
     {
     }
+
+    void OnDestroy()
+    {
+        webSocket.Close();
+    }
 }
