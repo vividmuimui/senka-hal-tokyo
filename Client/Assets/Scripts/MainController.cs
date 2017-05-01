@@ -13,6 +13,8 @@ public class MainController : MonoBehaviour
 
     [SerializeField]
     GameObject playerPrefab;
+    [SerializeField]
+    GameObject otherPlayerPrefab;
 
     void Start()
     {
