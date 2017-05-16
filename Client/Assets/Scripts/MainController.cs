@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 using WebSocketSharp;
+using RPC = WebSocketSample.RPC;
 
 public class MainController : MonoBehaviour
 {
@@ -35,6 +36,8 @@ public class MainController : MonoBehaviour
         };
 
         webSocket.Connect();
+
+        webSocket.Send(JsonUtility.ToJson(new RPC.Ping(new RPC.PingPayload("ping"))));
     }
 
     void Update()
