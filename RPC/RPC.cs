@@ -1,195 +1,180 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace WebSocketSample.RPC
 {
-
-[System.Serializable]
-public class Header
-{
-	public string method;
-}
-
-[System.Serializable]
-public class Pos
-{
-	public Pos(int uid, float x, float y, float z)
-	{
-		payload = new PosPayload(uid, x, y, z);
-	}
-
-	public string method = "pos";
-	public PosPayload payload;
-}
-
-[System.Serializable]
-public class PosPayload
-{
-	public PosPayload(int uid, float x, float y, float z)
-	{
-		this.uid = uid;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
-	public int uid;
-	public float x;
-	public float y;
-	public float z;
-}
-
-[System.Serializable]
-public class Login
-{
-	public Login(int uid, string name)
-	{
-		payload = new LoginPayload(uid, name);
-	}
-
-	public string method = "login";
-	public LoginPayload payload;
-}
-
-[System.Serializable]
-public class LoginPayload
-{
-	public LoginPayload(int uid, string name)
-	{
-		this.uid = uid;
-		this.name = name;
-	}
-
-	public int uid;
-	public string name;
-}
-
-[System.Serializable]
-public class Sync
-{
-	public string method = "sync";
-	public SyncPayload payload = new SyncPayload();
-
-	public override string ToString()
-	{
-		return "method=" + method + ", payload=" + payload.ToString();
-	}
-}
-
-[System.Serializable]
-public class SyncPayload
-{
-	public List<Player> players = new List<Player>();
-
-	public override string ToString()
-	{
-		var msg = "";
-		foreach (var p in players)
-		{
-			msg += p.ToString() + " ";
-		}
-		return msg;
-	}
-}
-
-[System.Serializable]
-public class Player
-{
-	public int uid = 0;
-	public float x = 0;
-	public float y = 0;
-	public float z = 0;
-
-	public Player()
-	{
-	}
-
-	public Player(int uid, float x, float y, float z)
-	{
-		this.uid = uid;
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
-	public override string ToString()
-	{
-		var msg = string.Format(
-			"Player({0},{1},{2},{3})",
-			uid, x, y, z
-		);
-		return msg;
-	}
-}
-
-[System.Serializable]
-public class Register
-{
-	public Register(string name)
-	{
-		payload = new RegisterPayload(name);
-	}
-
-	public string method = "register";
-	public RegisterPayload payload;
-}
-
-[System.Serializable]
-public class RegisterPayload
-{
-	public RegisterPayload(string name)
-	{
-		this.name = name;
-	}
-
-	public string name;
-}
-
-[System.Serializable]
-public class RegisterResponse
-{
-    public RegisterResponse(int uid)
+    [System.Serializable]
+    public class Header
     {
-        this.payload = new RegisterResponsePayload(uid);
+        public string Method;
     }
 
-	public string method = "register_response";
-	public RegisterResponsePayload payload;
-}
-
-[System.Serializable]
-public class RegisterResponsePayload
-{
-    public RegisterResponsePayload(int uid)
+    [System.Serializable]
+    public class Position
     {
-        this.uid = uid;
+        public float X;
+        public float Y;
+        public float Z;
+
+        public Position(float x, float y, float z)
+        {
+            this.X = x;
+            this.Y = y;
+            this.Z = z;
+        }
     }
-	public int uid;
+
+    [System.Serializable]
+    public class PlayerUpdate
+    {
+        public string Method = "player_update";
+        public PlayerUpdatePayload Payload;
+
+        public PlayerUpdate(PlayerUpdatePayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class PlayerUpdatePayload
+    {
+        public int Id;
+        public Position Position;
+
+        public PlayerUpdatePayload(int id, Position position)
+        {
+            this.Id = id;
+            this.Position = position;
+        }
+    }
+
+    [System.Serializable]
+    public class Login
+    {
+        public string Method = "login";
+        public LoginPayload Payload;
+
+        public Login(LoginPayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class LoginPayload
+    {
+        public int Id;
+        public string Name;
+
+        public LoginPayload(int id, string name)
+        {
+            this.Id = id;
+            this.Name = name;
+        }
+    }
+
+    [System.Serializable]
+    public class Sync
+    {
+        public string Method = "sync";
+        public SyncPayload Payload;
+
+        public Sync(SyncPayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class SyncPayload
+    {
+        public List<Player> Players;
+
+        public SyncPayload(List<Player> players)
+        {
+            this.Players = players;
+        }
+    }
+
+    [System.Serializable]
+    public class Player
+    {
+        public int Id;
+        public Position Position;
+
+        public Player(int id, Position position)
+        {
+            this.Id = id;
+            this.Position = position;
+        }
+    }
+
+    [System.Serializable]
+    public class Register
+    {
+        public string Method = "register";
+        public RegisterPayload Payload;
+
+        public Register(RegisterPayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class RegisterPayload
+    {
+        public string Name;
+
+        public RegisterPayload(string name)
+        {
+            this.Name = name;
+        }
+    }
+
+    [System.Serializable]
+    public class RegisterResponse
+    {
+        public string Method = "register_response";
+        public RegisterResponsePayload Payload;
+
+        public RegisterResponse(int id)
+        {
+            this.Payload = new RegisterResponsePayload(id);
+        }
+    }
+
+    [System.Serializable]
+    public class RegisterResponsePayload
+    {
+        public int Id;
+
+        public RegisterResponsePayload(int id)
+        {
+            this.Id = id;
+        }
+    }
+
+    [System.Serializable]
+    public class Ping
+    {
+        public string Method = "ping";
+        public PingPayload Payload;
+
+        public Ping(PingPayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class PingPayload
+    {
+        public string Message;
+
+        public PingPayload(string message)
+        {
+            this.Message = message;
+        }
+    }
 }
-
-
-[System.Serializable]
-public class Ping
-{
-	public Ping(string name)
-	{
-		payload = new PingPayload(name);
-	}
-
-	public string method = "ping";
-	public PingPayload payload;
-}
-
-[System.Serializable]
-public class PingPayload
-{
-	public PingPayload(string name)
-	{
-		this.name = name;
-	}
-
-	public string name;
-}
-
-} // namespace WebSocketSample
-
