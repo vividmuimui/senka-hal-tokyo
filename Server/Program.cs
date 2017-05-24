@@ -159,35 +159,18 @@ namespace WebSocketSample.Server
             }
         }
 
-        public void Register(string senderId, MessageEventArgs e)
-        {
-            Console.WriteLine(">> Register");
-
-            var register = JsonConvert.DeserializeObject<Register>(e.Data);
-
-            var msg = JsonConvert.SerializeObject(
-                new RegisterResponse(
-                    uidGenerator.generate()
-                )
-            );
-
-            SendTo(senderId, msg);
-
-            Console.WriteLine("<< Register Response");
-        }
-
         public void Login(string senderId, MessageEventArgs e)
         {
             Console.WriteLine(">> Login");
 
             var login = JsonConvert.DeserializeObject<Login>(e.Data);
+            var uid = uidGenerator.generate();
 
-            var player = new Player(
-                login.Payload.Id,
-                login.Payload.Name
-            );
+            var player = new Player(uid, login.Payload.Name);
+            players[uid] = player;
 
-            players[login.Payload.Id] = player;
+            var jsonMessage = JsonConvert.SerializeObject(new LoginResponse(new LoginResponsePayload(uid)));
+            SendTo(senderId, jsonMessage);
 
             Console.WriteLine(player.ToString() + " login.");
         }
@@ -282,13 +265,6 @@ namespace WebSocketSample.Server
             {
                 sv.SendTo(senderId, JsonConvert.SerializeObject(new Ping(new PingPayload("pong"))));
                 Console.WriteLine("<< Pong");
-            }
-            else if (header.Method == "register")
-            {
-                sv.RunOnMainThread(() =>
-                {
-                    sv.Register(senderId, e);
-                });
             }
             else if (header.Method == "login")
             {
