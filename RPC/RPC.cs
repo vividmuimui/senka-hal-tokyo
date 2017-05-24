@@ -63,13 +63,34 @@ namespace WebSocketSample.RPC
     [System.Serializable]
     public class LoginPayload
     {
-        public int Id;
         public string Name;
 
-        public LoginPayload(int id, string name)
+        public LoginPayload(string name)
+        {
+            this.Name = name;
+        }
+    }
+
+    [System.Serializable]
+    public class LoginResponse
+    {
+        public string Method = "login_response";
+        public LoginResponsePayload Payload;
+
+        public LoginResponse(LoginResponsePayload payload)
+        {
+            this.Payload = payload;
+        }
+    }
+
+    [System.Serializable]
+    public class LoginResponsePayload
+    {
+        public int Id;
+
+        public LoginResponsePayload(int id)
         {
             this.Id = id;
-            this.Name = name;
         }
     }
 
@@ -106,52 +127,6 @@ namespace WebSocketSample.RPC
         {
             this.Id = id;
             this.Position = position;
-        }
-    }
-
-    [System.Serializable]
-    public class Register
-    {
-        public string Method = "register";
-        public RegisterPayload Payload;
-
-        public Register(RegisterPayload payload)
-        {
-            this.Payload = payload;
-        }
-    }
-
-    [System.Serializable]
-    public class RegisterPayload
-    {
-        public string Name;
-
-        public RegisterPayload(string name)
-        {
-            this.Name = name;
-        }
-    }
-
-    [System.Serializable]
-    public class RegisterResponse
-    {
-        public string Method = "register_response";
-        public RegisterResponsePayload Payload;
-
-        public RegisterResponse(int id)
-        {
-            this.Payload = new RegisterResponsePayload(id);
-        }
-    }
-
-    [System.Serializable]
-    public class RegisterResponsePayload
-    {
-        public int Id;
-
-        public RegisterResponsePayload(int id)
-        {
-            this.Id = id;
         }
     }
 
