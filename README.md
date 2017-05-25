@@ -48,3 +48,6 @@ git clone --recursive https://github.com/k-hamada/HAL.git
 * Newtonsoft.Json  
   Copyright (c) 2007 James Newton-King  
   https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md
+
+## Original
+https://github.com/yukinarit/WebSocketSample by [yukinarit](https://github.com/yukinarit/)
