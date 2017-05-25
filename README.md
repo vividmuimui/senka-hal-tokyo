@@ -38,3 +38,13 @@ git clone --recursive https://github.com/k-hamada/HAL.git
   ```
   mono Server/bin/Release/Server.exe
   ```
+
+## Copyright
+
+* websocket-sharp  
+  Copyright (c) 2010-2017 sta.blockhead  
+  https://github.com/sta/websocket-sharp/blob/master/LICENSE.txt
+
+* Newtonsoft.Json  
+  Copyright (c) 2007 James Newton-King  
+  https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md
