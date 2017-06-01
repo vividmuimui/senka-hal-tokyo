@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 using WebSocketSharp;
 using RPC = WebSocketSample.RPC;
@@ -8,10 +9,14 @@ public class MainController : MonoBehaviour
     WebSocket webSocket;    // WebSocketコネクション
 
     GameObject playerObj;
+    Vector3 previousPlayerObjPosition;   // 前フレームでの位置
     int playerId; // プレイヤーID
+    Dictionary<int, GameObject> otherPlayerObjs = new Dictionary<int, GameObject>();   // 他プレイヤー
 
     [SerializeField]
     GameObject playerPrefab;
+    [SerializeField]
+    GameObject otherPlayerPrefab;
 
     void Start()
     {
@@ -55,6 +60,12 @@ public class MainController : MonoBehaviour
                         MainThreadExecutor.Enqueue(() => OnLoginResponse(loginResponse.Payload));
                         break;
                     }
+                case "sync":
+                    {
+                        var syncMessage = JsonUtility.FromJson<RPC.Sync>(eventArgs.Data);
+                        MainThreadExecutor.Enqueue(() => OnSync(syncMessage.Payload));
+                        break;
+                    }
             }
         };
 
@@ -65,6 +76,7 @@ public class MainController : MonoBehaviour
 
     void Update()
     {
+        UpdatePosition();
     }
 
     void OnDestroy()
@@ -86,5 +98,48 @@ public class MainController : MonoBehaviour
         Debug.Log("<< LoginResponse");
         playerId = response.Id;
         playerObj = Instantiate(playerPrefab, new Vector3(0.0f, 0.5f, 0.0f), Quaternion.identity) as GameObject;
+    }
+
+    void UpdatePosition()
+    {
+        if (playerObj == null) return;
+        if (playerObj.transform.position == previousPlayerObjPosition) return;
+
+        Debug.Log(">> Update");
+
+        var currentPlayerPosition = playerObj.transform.position;
+        previousPlayerObjPosition = currentPlayerPosition;
+
+        var rpcPosition = new RPC.Position(currentPlayerPosition.x, currentPlayerPosition.y, currentPlayerPosition.z);
+        var jsonMessage = JsonUtility.ToJson(new RPC.PlayerUpdate(new RPC.PlayerUpdatePayload(playerId, rpcPosition)));
+        Debug.Log(jsonMessage);
+
+        webSocket.Send(jsonMessage);
+    }
+
+    void OnSync(RPC.SyncPayload payload)
+    {
+        Debug.Log("<< Sync");
+
+        foreach (var player in payload.Players)
+        {
+            // 自分の座標は要らない
+            if (player.Id == playerId) continue;
+
+            var playerPosition = new Vector3(player.Position.X, player.Position.Y, player.Position.Z);
+            if (otherPlayerObjs.ContainsKey(player.Id))
+            {
+                // 既にGameObjectが居たら位置更新
+                otherPlayerObjs[player.Id].transform.position = playerPosition;
+            }
+            else
+            {
+                // GameObjectが居なかったら新規作成
+                var otherPlayerObj = Instantiate(otherPlayerPrefab, playerPosition, Quaternion.identity) as GameObject;
+                otherPlayerObj.name = "Other" + player.Id;
+                otherPlayerObjs.Add(player.Id, otherPlayerObj);
+                Debug.Log("Instantiated a new player: " + player.Id);
+            }
+        }
     }
 }
