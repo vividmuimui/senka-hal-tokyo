@@ -34,6 +34,7 @@ namespace WebSocketSample.Server
     public class GameServer
     {
         const string DEFAULT_ADDRESS = "ws//localhost:5678";
+        const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
         static GameServer instance;
@@ -56,7 +57,7 @@ namespace WebSocketSample.Server
         GameServer(string address)
         {
             WebSocketServer = new WebSocketServer(address);
-            WebSocketServer.AddWebSocketService<WebSocketSampleService>("/");
+            WebSocketServer.AddWebSocketService<WebSocketSampleService>(SERVICE_NAME);
         }
 
         public void RunForever()
@@ -190,14 +191,14 @@ namespace WebSocketSample.Server
 
         void SendTo(string id, string message)
         {
-            WebSocketServer.WebSocketServices["/"].Sessions.SendTo(message, id);
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.SendTo(message, id);
 
             Console.WriteLine("<< SendTo: " + id + " " + message);
         }
 
         void Broadcast(string message)
         {
-            WebSocketServer.WebSocketServices["/"].Sessions.Broadcast(message);
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
 
             Console.WriteLine("<< Broeadcast: " + message);
         }
