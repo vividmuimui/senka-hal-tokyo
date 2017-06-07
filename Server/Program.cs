@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using WebSocketSharp;
 using WebSocketSharp.Server;
 using Newtonsoft.Json;
@@ -11,9 +12,19 @@ namespace WebSocketSample.Server
     {
         public static void Main(string[] args)
         {
-            var host = "ws://localhost";
+            IPAddress ipv4 = null;
+            foreach (var ipAddress in Dns.GetHostAddresses(""))
+            {
+                if (ipAddress.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                {
+                    ipv4 = ipAddress;
+                    break;
+                }
+            }
+
             var port = 5678;
-            var address = host + ":" + port.ToString();
+            var address = string.Format("ws://{0}:{1}", ipv4.ToString(), port);
+            Console.WriteLine(address);
 
             var gameServer = GameServer.GetInstance(address);
             gameServer.RunForever();
