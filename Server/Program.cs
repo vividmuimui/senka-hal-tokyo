@@ -23,7 +23,7 @@ namespace WebSocketSample.Server
     public class GameServer
     {
         const string DEFAULT_ADDRESS = "ws//localhost:5678";
-        const string EXIT_KEY = "q";
+        const string EXIT_KEY = "Q";
 
         static GameServer instance;
 
