@@ -610,6 +610,7 @@ MonoBehaviour:
     type: 2}
   otherPlayerPrefab: {fileID: 1000013530691402, guid: 8da97395e89154d00aeaf2c9abf021e2,
     type: 2}
+  connectAddress: 
 --- !u!114 &1433402334
 MonoBehaviour:
   m_ObjectHideFlags: 0
