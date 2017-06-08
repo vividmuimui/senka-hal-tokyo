@@ -1370,31 +1370,34 @@ namespace WebSocketSharp
     /// </param>
     public static bool IsLocal (this System.Net.IPAddress address)
     {
-      if (address == null)
-        return false;
+      // workaround
+      return true;
 
-      if (address.Equals (System.Net.IPAddress.Any))
-        return true;
-
-      if (address.Equals (System.Net.IPAddress.Loopback))
-        return true;
-
-      if (Socket.OSSupportsIPv6) {
-        if (address.Equals (System.Net.IPAddress.IPv6Any))
-          return true;
-
-        if (address.Equals (System.Net.IPAddress.IPv6Loopback))
-          return true;
-      }
-
-      var host = System.Net.Dns.GetHostName ();
-      var addrs = System.Net.Dns.GetHostAddresses (host);
-      foreach (var addr in addrs) {
-        if (address.Equals (addr))
-          return true;
-      }
-
-      return false;
+    //   if (address == null)
+    //     return false;
+    //
+    //   if (address.Equals (System.Net.IPAddress.Any))
+    //     return true;
+    //
+    //   if (address.Equals (System.Net.IPAddress.Loopback))
+    //     return true;
+    //
+    //   if (Socket.OSSupportsIPv6) {
+    //     if (address.Equals (System.Net.IPAddress.IPv6Any))
+    //       return true;
+    //
+    //     if (address.Equals (System.Net.IPAddress.IPv6Loopback))
+    //       return true;
+    //   }
+    //
+    //   var host = System.Net.Dns.GetHostName ();
+    //   var addrs = System.Net.Dns.GetHostAddresses (host);
+    //   foreach (var addr in addrs) {
+    //     if (address.Equals (addr))
+    //       return true;
+    //   }
+    //
+    //   return false;
     }
 
     /// <summary>
