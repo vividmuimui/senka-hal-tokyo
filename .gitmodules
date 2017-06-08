@@ -2,7 +2,3 @@
 	path = Newtonsoft.Json
 	url = https://github.com/JamesNK/Newtonsoft.Json.git
 	ignore = dirty
-[submodule "websocket-sharp"]
-	path = websocket-sharp
-	url = https://github.com/sta/websocket-sharp.git
-	ignore = dirty
