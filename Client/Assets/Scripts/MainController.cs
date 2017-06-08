@@ -18,9 +18,12 @@ public class MainController : MonoBehaviour
     [SerializeField]
     GameObject otherPlayerPrefab;
 
+    [SerializeField]
+    private string connectAddress;
+
     void Start()
     {
-        webSocket = new WebSocket("ws://localhost:5678");
+        webSocket = new WebSocket(connectAddress);
 
         // コネクション確立したときのハンドラ
         webSocket.OnOpen += (sender, eventArgs) =>
