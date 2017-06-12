@@ -34,7 +34,7 @@ namespace WebSocketSample.Server
     public class GameServer
     {
         const string DEFAULT_ADDRESS = "ws//localhost:5678";
-        const string EXIT_KEY = "Q";
+        const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
         static GameServer instance;
 
@@ -88,14 +88,14 @@ namespace WebSocketSample.Server
         {
             if (!Console.KeyAvailable) return;
 
-            var key = Console.ReadKey(true);
-            if (key.Key.ToString() == EXIT_KEY)
+            switch (Console.ReadKey(true).Key)
             {
-                throw new GameExit();
-            }
-            else
-            {
-                Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
+                case EXIT_KEY:
+                    throw new GameExit();
+
+                default:
+                    Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
+                    break;
             }
         }
 
