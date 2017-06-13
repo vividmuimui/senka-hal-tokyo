@@ -42,7 +42,6 @@ namespace WebSocketSample.Server
         public WebSocketServer WebSocketServer;
 
         Dictionary<int, Player> players = new Dictionary<int, Player>();
-        Queue<Action> actions = new Queue<Action>(); // 非同期タスク
         UIDGenerator uidGenerator = new UIDGenerator();
 
         static public GameServer GetInstance(string address = DEFAULT_ADDRESS)
@@ -70,7 +69,6 @@ namespace WebSocketSample.Server
                 while (true)
                 {
                     PollKey();
-                    UpdateActions();
                     Sync();
                 }
             }
@@ -100,21 +98,6 @@ namespace WebSocketSample.Server
             }
         }
 
-        // キュー内のタスク実行
-        void UpdateActions()
-        {
-            while (true)
-            {
-                lock (actions)
-                {
-                    if (actions.Count == 0) break;
-
-                    var action = actions.Dequeue();
-                    action();
-                }
-            }
-        }
-
         void Sync()
         {
             if (players.Count == 0) return;
@@ -135,15 +118,6 @@ namespace WebSocketSample.Server
             var syncRpc = new Sync(new SyncPayload(movedPlayers));
             var syncJson = JsonConvert.SerializeObject(syncRpc);
             Broadcast(syncJson);
-        }
-
-        // メインスレッドで実行するためのキューに入れる
-        public void RunOnMainThread(Action action)
-        {
-            lock (actions)
-            {
-                actions.Enqueue(action);
-            }
         }
 
         public void Ping(string senderId, MessageEventArgs e)
@@ -258,17 +232,17 @@ namespace WebSocketSample.Server
             {
                 case "ping":
                     {
-                        gameServer.RunOnMainThread(() => gameServer.Ping(senderId, e));
+                        gameServer.Ping(senderId, e);
                         break;
                     }
                 case "login":
                     {
-                        gameServer.RunOnMainThread(() => gameServer.Login(senderId, e));
+                        gameServer.Login(senderId, e);
                         break;
                     }
                 case "player_update":
                     {
-                        gameServer.RunOnMainThread(() => gameServer.PlayerUpdate(senderId, e));
+                        gameServer.PlayerUpdate(senderId, e);
                         break;
                     }
             }
