@@ -119,19 +119,20 @@ namespace WebSocketSample.Server
         {
             if (players.Count == 0) return;
 
-            var playersList = new List<RPC.Player>();
+            var movedPlayers = new List<RPC.Player>();
             foreach (var kv in players)
             {
                 var player = kv.Value;
-                if (!player.PositionChanged) continue;
-                var playerRpc = new RPC.Player(player.uid, new Position(player.x, player.y, player.z));
-                playersList.Add(playerRpc);
-                player.PositionChanged = false;
+                if (!player.isPositionChanged) continue;
+
+                var playerRpc = new RPC.Player(player.Uid, player.Position);
+                movedPlayers.Add(playerRpc);
+                player.isPositionChanged = false;
             }
 
-            if (playersList.Count == 0) return;
+            if (movedPlayers.Count == 0) return;
 
-            var syncRpc = new Sync(new SyncPayload(playersList));
+            var syncRpc = new Sync(new SyncPayload(movedPlayers));
             var syncJson = JsonConvert.SerializeObject(syncRpc);
             Broadcast(syncJson);
         }
@@ -162,10 +163,10 @@ namespace WebSocketSample.Server
 
             var login = JsonConvert.DeserializeObject<Login>(e.Data);
 
-            var player = new Player(uidGenerator.Generate(), login.Payload.Name);
-            players[player.uid] = player;
+            var player = new Player(uidGenerator.Generate(), login.Payload.Name, new Position(0f, 0f, 0f));
+            players[player.Uid] = player;
 
-            var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.uid));
+            var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
             var loginResponseJson = JsonConvert.SerializeObject(loginResponseRpc);
             SendTo(senderId, loginResponseJson);
 
@@ -181,11 +182,7 @@ namespace WebSocketSample.Server
             Player player;
             if (players.TryGetValue(playerUpdate.Payload.Id, out player))
             {
-                player.SetPosition(
-                    playerUpdate.Payload.Position.X,
-                    playerUpdate.Payload.Position.Y,
-                    playerUpdate.Payload.Position.Z
-                );
+                player.SetPosition(playerUpdate.Payload.Position);
             }
         }
 
@@ -280,31 +277,24 @@ namespace WebSocketSample.Server
 
     class Player
     {
-        public int uid;
-        public string name;
-        public float x;
-        public float y;
-        public float z;
-        public bool PositionChanged { get; set; }
+        public readonly int Uid;
+        public readonly string Name;
+        public Position Position;
+        public bool isPositionChanged;
 
-        public Player(int uid, string name, float x = 0.0f, float y = 0.0f, float z = 0.0f)
+        public Player(int uid, string name, Position position)
         {
-            this.uid = uid;
-            this.name = name;
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            PositionChanged = false;
+            Uid = uid;
+            Name = name;
+            Position = position;
         }
 
-        public void SetPosition(float x, float y, float z)
+        public void SetPosition(Position position)
         {
-            if (this.x != x || this.y != y || this.z != z)
+            if (Position.X != position.X || Position.Y != position.Y || Position.Z != position.Z)
             {
-                this.x = x;
-                this.y = y;
-                this.z = z;
-                PositionChanged = true;
+                Position = position;
+                isPositionChanged = true;
             }
         }
 
@@ -312,9 +302,9 @@ namespace WebSocketSample.Server
         {
             return string.Format(
                 "<Player(uid={0}, name={1}, x={2}, y={3}, z={4})>",
-                uid,
-                name,
-                x, y, z
+                Uid,
+                Name,
+                Position.X, Position.Y, Position.Z
             );
         }
     }
