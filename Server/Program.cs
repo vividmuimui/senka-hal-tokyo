@@ -175,50 +175,33 @@ namespace WebSocketSample.Server
         {
             Console.WriteLine("WebSocket Message: " + e.Data);
 
-            try
+            var header = JsonConvert.DeserializeObject<Header>(e.Data);
+            Console.WriteLine("Header: " + header.Method);
+
+            var gameServer = GameServer.GetInstance();
+            switch (header.Method)
             {
-                DispatchMethod(e);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                case "ping":
+                    {
+                        gameServer.Ping(ID, e);
+                        break;
+                    }
+                case "login":
+                    {
+                        gameServer.Login(ID, e);
+                        break;
+                    }
+                case "player_update":
+                    {
+                        gameServer.PlayerUpdate(ID, e);
+                        break;
+                    }
             }
         }
 
         protected override void OnError(ErrorEventArgs e)
         {
             Console.WriteLine("WebSocket Error: " + e);
-        }
-
-        // メソッドディスパッチ
-        void DispatchMethod(MessageEventArgs e)
-        {
-            // ヘッダ解析
-            var header = JsonConvert.DeserializeObject<Header>(e.Data);
-            Console.WriteLine("Header: " + header.Method);
-
-            var gameServer = GameServer.GetInstance();
-            var senderId = ID;
-
-            switch (header.Method)
-            {
-                case "ping":
-                    {
-                        gameServer.Ping(senderId, e);
-                        break;
-                    }
-                case "login":
-                    {
-                        gameServer.Login(senderId, e);
-                        break;
-                    }
-                case "player_update":
-                    {
-                        gameServer.PlayerUpdate(senderId, e);
-                        break;
-                    }
-            }
         }
     }
 
