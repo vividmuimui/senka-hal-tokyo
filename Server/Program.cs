@@ -42,7 +42,7 @@ namespace WebSocketSample.Server
         public WebSocketServer WebSocketServer;
 
         Dictionary<int, Player> players = new Dictionary<int, Player>();
-        UIDGenerator uidGenerator = new UIDGenerator();
+        static int uidCounter;
 
         static public GameServer GetInstance(string address = DEFAULT_ADDRESS)
         {
@@ -121,7 +121,7 @@ namespace WebSocketSample.Server
 
             var login = JsonConvert.DeserializeObject<Login>(e.Data);
 
-            var player = new Player(uidGenerator.Generate(), login.Payload.Name, new Position(0f, 0f, 0f));
+            var player = new Player(uidCounter++, login.Payload.Name, new Position(0f, 0f, 0f));
             players[player.Uid] = player;
 
             var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
@@ -156,17 +156,6 @@ namespace WebSocketSample.Server
             WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
 
             Console.WriteLine("<< Broeadcast: " + message);
-        }
-    }
-
-    class UIDGenerator
-    {
-        int counter = 0;
-
-        public int Generate()
-        {
-            counter++;
-            return counter;
         }
     }
 
