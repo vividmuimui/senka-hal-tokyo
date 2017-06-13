@@ -104,7 +104,7 @@ namespace WebSocketSample.Server
             Broadcast(syncJson);
         }
 
-        public void Ping(string senderId, MessageEventArgs e)
+        public void Ping(string senderId)
         {
             Console.WriteLine(">> Ping");
 
@@ -115,13 +115,11 @@ namespace WebSocketSample.Server
             Console.WriteLine("<< Pong");
         }
 
-        public void Login(string senderId, MessageEventArgs e)
+        public void Login(string senderId, LoginPayload loginPayload)
         {
             Console.WriteLine(">> Login");
 
-            var login = JsonConvert.DeserializeObject<Login>(e.Data);
-
-            var player = new Player(uidCounter++, login.Payload.Name, new Position(0f, 0f, 0f));
+            var player = new Player(uidCounter++, loginPayload.Name, new Position(0f, 0f, 0f));
             players[player.Uid] = player;
 
             var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
@@ -131,16 +129,14 @@ namespace WebSocketSample.Server
             Console.WriteLine(player.ToString() + " login.");
         }
 
-        public void PlayerUpdate(string senderId, MessageEventArgs e)
+        public void PlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
         {
             Console.WriteLine(">> PlayerUpdate");
 
-            var playerUpdate = JsonConvert.DeserializeObject<PlayerUpdate>(e.Data);
-
             Player player;
-            if (players.TryGetValue(playerUpdate.Payload.Id, out player))
+            if (players.TryGetValue(playerUpdatePayload.Id, out player))
             {
-                player.SetPosition(playerUpdate.Payload.Position);
+                player.SetPosition(playerUpdatePayload.Position);
             }
         }
 
@@ -183,17 +179,19 @@ namespace WebSocketSample.Server
             {
                 case "ping":
                     {
-                        gameServer.Ping(ID, e);
+                        gameServer.Ping(ID);
                         break;
                     }
                 case "login":
                     {
-                        gameServer.Login(ID, e);
+                        var loginPayload = JsonConvert.DeserializeObject<Login>(e.Data).Payload;
+                        gameServer.Login(ID, loginPayload);
                         break;
                     }
                 case "player_update":
                     {
-                        gameServer.PlayerUpdate(ID, e);
+                        var playerUpdatePayload = JsonConvert.DeserializeObject<PlayerUpdate>(e.Data).Payload;
+                        gameServer.PlayerUpdate(ID, playerUpdatePayload);
                         break;
                     }
             }
