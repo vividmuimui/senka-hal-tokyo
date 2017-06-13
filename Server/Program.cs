@@ -41,9 +41,6 @@ namespace WebSocketSample.Server
 
         public WebSocketServer WebSocketServer;
 
-        Dictionary<int, Player> players = new Dictionary<int, Player>();
-        static int uidCounter;
-
         static public GameServer GetInstance(string address = DEFAULT_ADDRESS)
         {
             if (instance == null)
@@ -81,82 +78,13 @@ namespace WebSocketSample.Server
                 Sync();
             }
         }
-
-        void Sync()
-        {
-            if (players.Count == 0) return;
-
-            var movedPlayers = new List<RPC.Player>();
-            foreach (var kv in players)
-            {
-                var player = kv.Value;
-                if (!player.isPositionChanged) continue;
-
-                var playerRpc = new RPC.Player(player.Uid, player.Position);
-                movedPlayers.Add(playerRpc);
-                player.isPositionChanged = false;
-            }
-
-            if (movedPlayers.Count == 0) return;
-
-            var syncRpc = new Sync(new SyncPayload(movedPlayers));
-            var syncJson = JsonConvert.SerializeObject(syncRpc);
-            Broadcast(syncJson);
-        }
-
-        public void Ping(string senderId)
-        {
-            Console.WriteLine(">> Ping");
-
-            var pingRpc = new Ping(new PingPayload("pong"));
-            var pingJson = JsonConvert.SerializeObject(pingRpc);
-            SendTo(senderId, pingJson);
-
-            Console.WriteLine("<< Pong");
-        }
-
-        public void Login(string senderId, LoginPayload loginPayload)
-        {
-            Console.WriteLine(">> Login");
-
-            var player = new Player(uidCounter++, loginPayload.Name, new Position(0f, 0f, 0f));
-            players[player.Uid] = player;
-
-            var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
-            var loginResponseJson = JsonConvert.SerializeObject(loginResponseRpc);
-            SendTo(senderId, loginResponseJson);
-
-            Console.WriteLine(player.ToString() + " login.");
-        }
-
-        public void PlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
-        {
-            Console.WriteLine(">> PlayerUpdate");
-
-            Player player;
-            if (players.TryGetValue(playerUpdatePayload.Id, out player))
-            {
-                player.SetPosition(playerUpdatePayload.Position);
-            }
-        }
-
-        void SendTo(string id, string message)
-        {
-            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.SendTo(message, id);
-
-            Console.WriteLine("<< SendTo: " + id + " " + message);
-        }
-
-        void Broadcast(string message)
-        {
-            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
-
-            Console.WriteLine("<< Broeadcast: " + message);
-        }
     }
 
     public class WebSocketSampleService : WebSocketBehavior
     {
+        Dictionary<int, Player> players = new Dictionary<int, Player>();
+        static int uidCounter;
+
         protected override void OnOpen()
         {
             Console.WriteLine("WebSocket opened.");
@@ -179,19 +107,19 @@ namespace WebSocketSample.Server
             {
                 case "ping":
                     {
-                        gameServer.Ping(ID);
+                        Ping();
                         break;
                     }
                 case "login":
                     {
                         var loginPayload = JsonConvert.DeserializeObject<Login>(e.Data).Payload;
-                        gameServer.Login(ID, loginPayload);
+                        Login(loginPayload);
                         break;
                     }
                 case "player_update":
                     {
                         var playerUpdatePayload = JsonConvert.DeserializeObject<PlayerUpdate>(e.Data).Payload;
-                        gameServer.PlayerUpdate(ID, playerUpdatePayload);
+                        PlayerUpdate(playerUpdatePayload);
                         break;
                     }
             }
@@ -200,6 +128,76 @@ namespace WebSocketSample.Server
         protected override void OnError(ErrorEventArgs e)
         {
             Console.WriteLine("WebSocket Error: " + e);
+        }
+
+        void SendTo(string message)
+        {
+            Sessions.SendTo(message, ID);
+            Console.WriteLine("<< SendTo: " + ID + " " + message);
+        }
+
+        void Broadcast(string message)
+        {
+            Sessions.Broadcast(message);
+            Console.WriteLine("<< Broeadcast: " + message);
+        }
+
+        public void Ping()
+        {
+            Console.WriteLine(">> Ping");
+
+            var pingRpc = new Ping(new PingPayload("pong"));
+            var pingJson = JsonConvert.SerializeObject(pingRpc);
+            SendTo(pingJson);
+
+            Console.WriteLine("<< Pong");
+        }
+
+        public void Login(LoginPayload loginPayload)
+        {
+            Console.WriteLine(">> Login");
+
+            var player = new Player(uidCounter++, loginPayload.Name, new Position(0f, 0f, 0f));
+            players[player.Uid] = player;
+
+            var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
+            var loginResponseJson = JsonConvert.SerializeObject(loginResponseRpc);
+            SendTo(loginResponseJson);
+
+            Console.WriteLine(player.ToString() + " login.");
+        }
+
+        public void PlayerUpdate(PlayerUpdatePayload playerUpdatePayload)
+        {
+            Console.WriteLine(">> PlayerUpdate");
+
+            Player player;
+            if (players.TryGetValue(playerUpdatePayload.Id, out player))
+            {
+                player.SetPosition(playerUpdatePayload.Position);
+            }
+        }
+
+        void Sync()
+        {
+            if (players.Count == 0) return;
+
+            var movedPlayers = new List<RPC.Player>();
+            foreach (var kv in players)
+            {
+                var player = kv.Value;
+                if (!player.isPositionChanged) continue;
+
+                var playerRpc = new RPC.Player(player.Uid, player.Position);
+                movedPlayers.Add(playerRpc);
+                player.isPositionChanged = false;
+            }
+
+            if (movedPlayers.Count == 0) return;
+
+            var syncRpc = new Sync(new SyncPayload(movedPlayers));
+            var syncJson = JsonConvert.SerializeObject(syncRpc);
+            Broadcast(syncJson);
         }
     }
 
