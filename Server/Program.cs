@@ -64,37 +64,21 @@ namespace WebSocketSample.Server
             WebSocketServer.Start();
             Console.WriteLine("Game Server started.");
 
-            try
+            while (true)
             {
-                while (true)
+                switch (Console.ReadKey(true).Key)
                 {
-                    PollKey();
-                    Sync();
+                    default:
+                        Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
+                        break;
+
+                    case EXIT_KEY:
+                        WebSocketServer.Stop();
+                        Console.WriteLine("Game Server terminated.");
+                        return;
                 }
-            }
-            catch (GameExit ex)
-            {
-            }
-            catch (Exception ex)
-            {
-            }
 
-            WebSocketServer.Stop();
-            Console.WriteLine("Game Server terminated.");
-        }
-
-        void PollKey()
-        {
-            if (!Console.KeyAvailable) return;
-
-            switch (Console.ReadKey(true).Key)
-            {
-                case EXIT_KEY:
-                    throw new GameExit();
-
-                default:
-                    Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
-                    break;
+                Sync();
             }
         }
 
@@ -281,26 +265,5 @@ namespace WebSocketSample.Server
                 Position.X, Position.Y, Position.Z
             );
         }
-    }
-
-    enum Status
-    {
-        OK = 0,
-        GameExit
-    };
-
-    class GameException : Exception
-    {
-        Status code;
-
-        public GameException(string message, Status code = Status.OK) : base(message)
-        {
-            this.code = code;
-        }
-    }
-
-    class GameExit : GameException
-    {
-        public GameExit() : base("Game exit.", Status.GameExit) { }
     }
 }
