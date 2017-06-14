@@ -170,9 +170,8 @@ namespace WebSocketSample.Server
             if (players.Count == 0) return;
 
             var movedPlayers = new List<RPC.Player>();
-            foreach (var kv in players)
+            foreach (var player in players.Values)
             {
-                var player = kv.Value;
                 if (!player.isPositionChanged) continue;
 
                 var playerRpc = new RPC.Player(player.Uid, player.Position);
