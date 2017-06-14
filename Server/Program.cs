@@ -36,7 +36,7 @@ namespace WebSocketSample.Server
         const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
-        public WebSocketServer WebSocketServer;
+        WebSocketServer WebSocketServer;
 
         public GameServer(string address)
         {
