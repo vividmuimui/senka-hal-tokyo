@@ -32,6 +32,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>websocket-sharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -46,5 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Newtonsoft.Json.dll" />
+    <None Include="websocket-sharp.dll" />
   </ItemGroup>
 </Project>
