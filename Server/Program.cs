@@ -49,21 +49,26 @@ namespace WebSocketSample.Server
             WebSocketServer.Start();
             Console.WriteLine("Game Server started.");
 
-            while (true)
+            while (!IsInputtedExitKey())
             {
-                switch (Console.ReadKey(true).Key)
-                {
-                    default:
-                        Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
-                        break;
-
-                    case EXIT_KEY:
-                        WebSocketServer.Stop();
-                        Console.WriteLine("Game Server terminated.");
-                        return;
-                }
-
                 Sync();
+            }
+        }
+
+        bool IsInputtedExitKey()
+        {
+            if (!Console.KeyAvailable) { return false; }
+
+            switch (Console.ReadKey(true).Key)
+            {
+                default:
+                    Console.WriteLine("Enter " + EXIT_KEY + " to exit the game.");
+                    return false;
+
+                case EXIT_KEY:
+                    WebSocketServer.Stop();
+                    Console.WriteLine("Game Server terminated.");
+                    return true;
             }
         }
     }
