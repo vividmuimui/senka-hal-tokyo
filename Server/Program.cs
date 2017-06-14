@@ -26,31 +26,19 @@ namespace WebSocketSample.Server
             var address = string.Format("ws://{0}:{1}", ipv4.ToString(), port);
             Console.WriteLine(address);
 
-            var gameServer = GameServer.GetInstance(address);
+            var gameServer = new GameServer(address);
             gameServer.RunForever();
         }
     }
 
     public class GameServer
     {
-        const string DEFAULT_ADDRESS = "ws//localhost:5678";
         const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
-        static GameServer instance;
-
         public WebSocketServer WebSocketServer;
 
-        static public GameServer GetInstance(string address = DEFAULT_ADDRESS)
-        {
-            if (instance == null)
-            {
-                instance = new GameServer(address);
-            }
-            return instance;
-        }
-
-        GameServer(string address)
+        public GameServer(string address)
         {
             WebSocketServer = new WebSocketServer(address);
             WebSocketServer.AddWebSocketService<WebSocketSampleService>(SERVICE_NAME);
@@ -102,7 +90,6 @@ namespace WebSocketSample.Server
             var header = JsonConvert.DeserializeObject<Header>(e.Data);
             Console.WriteLine("Header: " + header.Method);
 
-            var gameServer = GameServer.GetInstance();
             switch (header.Method)
             {
                 case "ping":
