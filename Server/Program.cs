@@ -10,7 +10,7 @@ namespace WebSocketSample.Server
 {
     class MainClass
     {
-        public static void Main(string[] args)
+        static void Main()
         {
             IPAddress ipv4 = null;
             foreach (var ipAddress in Dns.GetHostAddresses(""))
