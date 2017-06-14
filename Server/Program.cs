@@ -107,19 +107,19 @@ namespace WebSocketSample.Server
             {
                 case "ping":
                     {
-                        Ping();
+                        OnPing();
                         break;
                     }
                 case "login":
                     {
                         var loginPayload = JsonConvert.DeserializeObject<Login>(e.Data).Payload;
-                        Login(loginPayload);
+                        OnLogin(loginPayload);
                         break;
                     }
                 case "player_update":
                     {
                         var playerUpdatePayload = JsonConvert.DeserializeObject<PlayerUpdate>(e.Data).Payload;
-                        PlayerUpdate(playerUpdatePayload);
+                        OnPlayerUpdate(playerUpdatePayload);
                         break;
                     }
             }
@@ -142,7 +142,7 @@ namespace WebSocketSample.Server
             Console.WriteLine("<< Broeadcast: " + message);
         }
 
-        public void Ping()
+        public void OnPing()
         {
             Console.WriteLine(">> Ping");
 
@@ -153,7 +153,7 @@ namespace WebSocketSample.Server
             Console.WriteLine("<< Pong");
         }
 
-        public void Login(LoginPayload loginPayload)
+        public void OnLogin(LoginPayload loginPayload)
         {
             Console.WriteLine(">> Login");
 
@@ -167,7 +167,7 @@ namespace WebSocketSample.Server
             Console.WriteLine(player.ToString() + " login.");
         }
 
-        public void PlayerUpdate(PlayerUpdatePayload playerUpdatePayload)
+        public void OnPlayerUpdate(PlayerUpdatePayload playerUpdatePayload)
         {
             Console.WriteLine(">> PlayerUpdate");
 
