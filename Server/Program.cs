@@ -36,12 +36,14 @@ namespace WebSocketSample.Server
         const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
+        public event Action OnUpdate = () => { };
+
         WebSocketServer WebSocketServer;
 
         public GameServer(string address)
         {
             WebSocketServer = new WebSocketServer(address);
-            WebSocketServer.AddWebSocketService<WebSocketSampleService>(SERVICE_NAME);
+            WebSocketServer.AddWebSocketService<WebSocketSampleService>(SERVICE_NAME, () => new WebSocketSampleService(this));
         }
 
         public void RunForever()
@@ -51,7 +53,7 @@ namespace WebSocketSample.Server
 
             while (!IsInputtedExitKey())
             {
-                Sync();
+                OnUpdate();
             }
         }
 
@@ -77,6 +79,11 @@ namespace WebSocketSample.Server
     {
         Dictionary<int, Player> players = new Dictionary<int, Player>();
         static int uidCounter;
+
+        public WebSocketSampleService(GameServer gameServer)
+        {
+            gameServer.OnUpdate += Sync;
+        }
 
         protected override void OnOpen()
         {
