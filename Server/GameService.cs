@@ -7,12 +7,12 @@ using WebSocketSample.RPC;
 
 namespace WebSocketSample.Server
 {
-    public class WebSocketSampleService : WebSocketBehavior
+    public class GameService : WebSocketBehavior
     {
         Dictionary<int, Player> players = new Dictionary<int, Player>();
         static int uidCounter;
 
-        public WebSocketSampleService(GameServer gameServer)
+        public GameService(GameServer gameServer)
         {
             gameServer.OnUpdate += Sync;
         }
