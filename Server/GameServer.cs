@@ -15,7 +15,7 @@ namespace WebSocketSample.Server
         public GameServer(string address)
         {
             WebSocketServer = new WebSocketServer(address);
-            WebSocketServer.AddWebSocketService<WebSocketSampleService>(SERVICE_NAME, () => new WebSocketSampleService(this));
+            WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () => new GameService(this));
         }
 
         public void RunForever()
