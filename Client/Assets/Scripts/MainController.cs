@@ -12,6 +12,7 @@ public class MainController : MonoBehaviour
     Vector3 previousPlayerObjPosition;   // 前フレームでの位置
     int playerId; // プレイヤーID
     Dictionary<int, GameObject> otherPlayerObjs = new Dictionary<int, GameObject>();   // 他プレイヤー
+    Dictionary<int, GameObject> items = new Dictionary<int, GameObject>();
 
     [SerializeField]
     GameObject playerPrefab;
@@ -163,6 +164,7 @@ public class MainController : MonoBehaviour
             new Vector3(response.Item.Position.X, response.Item.Position.Y, response.Item.Position.Z),
             Quaternion.identity
         );
+        items.Add(response.Item.Id, itemObj);
 
         var item = itemObj.GetComponent<ItemController>();
         item.ItemId = response.Item.Id;
