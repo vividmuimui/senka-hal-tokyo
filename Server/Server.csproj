@@ -42,6 +42,7 @@
     <Compile Include="GameServer.cs" />
     <Compile Include="GameService.cs" />
     <Compile Include="MainClass.cs" />
+    <Compile Include="GameModel.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
