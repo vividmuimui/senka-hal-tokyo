@@ -15,9 +15,17 @@ namespace WebSocketSample.Server
         public GameModel(GameServer server)
         {
             this.server = server;
+            server.OnUpdate += Sync;
         }
 
-        public void OnPing(string senderId)
+        public void SubscribeServiceEvent(GameService service)
+        {
+            service.OnPing += OnPing;
+            service.OnLogin += OnLogin;
+            service.OnPlayerUpdate += OnPlayerUpdate;
+        }
+
+        void OnPing(string senderId)
         {
             Console.WriteLine(">> Ping");
 
@@ -28,7 +36,7 @@ namespace WebSocketSample.Server
             Console.WriteLine("<< Pong");
         }
 
-        public void OnLogin(string senderId, LoginPayload loginPayload)
+        void OnLogin(string senderId, LoginPayload loginPayload)
         {
             Console.WriteLine(">> Login");
 
@@ -42,7 +50,7 @@ namespace WebSocketSample.Server
             Console.WriteLine(player.ToString() + " login.");
         }
 
-        public void OnPlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
+        void OnPlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
         {
             Console.WriteLine(">> PlayerUpdate");
 
@@ -53,7 +61,7 @@ namespace WebSocketSample.Server
             }
         }
 
-        public void Sync()
+        void Sync()
         {
             if (players.Count == 0) return;
 
