@@ -14,8 +14,17 @@ namespace WebSocketSample.Server
 
         public GameServer(string address)
         {
+            var model = new GameModel(this);
             WebSocketServer = new WebSocketServer(address);
-            WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () => new GameService(this));
+            WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () =>
+            {
+                var service = new GameService();
+                service.OnPing += model.OnPing;
+                service.OnLogin += model.OnLogin;
+                service.OnPlayerUpdate += model.OnPlayerUpdate;
+                OnUpdate += model.Sync;
+                return service;
+            });
         }
 
         public void RunForever()
@@ -44,6 +53,18 @@ namespace WebSocketSample.Server
                     Console.WriteLine("Game Server terminated.");
                     return true;
             }
+        }
+
+        public void SendTo(string message, string id)
+        {
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.SendTo(message, id);
+            Console.WriteLine("<< SendTo: " + id + " " + message);
+        }
+
+        public void Broadcast(string message)
+        {
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
+            Console.WriteLine("<< Broeadcast: " + message);
         }
     }
 }
