@@ -190,5 +190,12 @@ public class MainController : MonoBehaviour
     void OnDeleteItem(RPC.DeleteItemPayload payload)
     {
         Debug.Log("<< DeleteItem");
+
+        var itemId = payload.ItemId;
+        if (items.ContainsKey(itemId))
+        {
+            Destroy(items[itemId]);
+            items.Remove(itemId);
+        }
     }
 }
