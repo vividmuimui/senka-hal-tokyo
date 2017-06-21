@@ -61,6 +61,11 @@ namespace WebSocketSample.Server
             }
         }
 
+        public void OnGetItem(string senderId, GetItemPayload getItemPayload)
+        {
+            Console.WriteLine(">> GetItem");
+        }
+
         void Sync()
         {
             if (players.Count == 0) return;
