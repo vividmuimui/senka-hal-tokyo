@@ -19,10 +19,7 @@ namespace WebSocketSample.Server
             WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () =>
             {
                 var service = new GameService();
-                service.OnPing += model.OnPing;
-                service.OnLogin += model.OnLogin;
-                service.OnPlayerUpdate += model.OnPlayerUpdate;
-                OnUpdate += model.Sync;
+                model.SubscribeServiceEvent(service);
                 return service;
             });
         }
