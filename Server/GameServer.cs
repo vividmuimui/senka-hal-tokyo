@@ -8,14 +8,24 @@ namespace WebSocketSample.Server
         const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
-        public event Action OnUpdate = () => { };
+        GameModel model;
 
         WebSocketServer WebSocketServer;
 
         public GameServer(string address)
         {
+            model = new GameModel();
+            model.sendTo += SendTo;
+            model.broadcast += Broadcast;
             WebSocketServer = new WebSocketServer(address);
-            WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () => new GameService(this));
+            WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () =>
+            {
+                var service = new GameService();
+                service.OnPing += model.OnPing;
+                service.OnLogin += model.OnLogin;
+                service.OnPlayerUpdate += model.OnPlayerUpdate;
+                return service;
+            });
         }
 
         public void RunForever()
@@ -25,7 +35,7 @@ namespace WebSocketSample.Server
 
             while (!IsInputtedExitKey())
             {
-                OnUpdate();
+                model.OnUpdate();
             }
         }
 
@@ -44,6 +54,18 @@ namespace WebSocketSample.Server
                     Console.WriteLine("Game Server terminated.");
                     return true;
             }
+        }
+
+        void SendTo(string message, string id)
+        {
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.SendTo(message, id);
+            Console.WriteLine("<< SendTo: " + id + " " + message);
+        }
+
+        void Broadcast(string message)
+        {
+            WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
+            Console.WriteLine("<< Broeadcast: " + message);
         }
     }
 }
