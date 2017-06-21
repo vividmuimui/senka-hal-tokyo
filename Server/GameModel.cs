@@ -69,6 +69,10 @@ namespace WebSocketSample.Server
             if (items.ContainsKey(itemId))
             {
                 items.Remove(itemId);
+
+                var deleteItemRpc = new DeleteItem(new DeleteItemPayload(itemId));
+                var deleteItemJson = JsonConvert.SerializeObject(deleteItemRpc);
+                broadcast(deleteItemJson);
             }
             else
             {
