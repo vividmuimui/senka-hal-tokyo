@@ -14,7 +14,7 @@ namespace WebSocketSample.Server
 
         public GameServer(string address)
         {
-            var model = new GameModel(this);
+            var model = new GameModel(ref OnUpdate, SendTo, Broadcast);
             WebSocketServer = new WebSocketServer(address);
             WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () =>
             {
@@ -52,13 +52,13 @@ namespace WebSocketSample.Server
             }
         }
 
-        public void SendTo(string message, string id)
+        void SendTo(string message, string id)
         {
             WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.SendTo(message, id);
             Console.WriteLine("<< SendTo: " + id + " " + message);
         }
 
-        public void Broadcast(string message)
+        void Broadcast(string message)
         {
             WebSocketServer.WebSocketServices[SERVICE_NAME].Sessions.Broadcast(message);
             Console.WriteLine("<< Broeadcast: " + message);

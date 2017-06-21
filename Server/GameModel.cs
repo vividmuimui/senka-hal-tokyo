@@ -10,12 +10,14 @@ namespace WebSocketSample.Server
         Dictionary<int, Player> players = new Dictionary<int, Player>();
         int uidCounter;
 
-        GameServer server;
+        Action<string, string> sendTo;
+        Action<string> broadcast;
 
-        public GameModel(GameServer server)
+        public GameModel(ref Action onUpdate, Action<string, string> send, Action<string> broadcast)
         {
-            this.server = server;
-            server.OnUpdate += Sync;
+            onUpdate += Sync;
+            this.sendTo = send;
+            this.broadcast = broadcast;
         }
 
         public void SubscribeServiceEvent(GameService service)
@@ -31,7 +33,7 @@ namespace WebSocketSample.Server
 
             var pingRpc = new Ping(new PingPayload("pong"));
             var pingJson = JsonConvert.SerializeObject(pingRpc);
-            server.SendTo(pingJson, senderId);
+            sendTo(pingJson, senderId);
 
             Console.WriteLine("<< Pong");
         }
@@ -45,7 +47,7 @@ namespace WebSocketSample.Server
 
             var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
             var loginResponseJson = JsonConvert.SerializeObject(loginResponseRpc);
-            server.SendTo(loginResponseJson, senderId);
+            sendTo(loginResponseJson, senderId);
 
             Console.WriteLine(player.ToString() + " login.");
         }
@@ -79,7 +81,7 @@ namespace WebSocketSample.Server
 
             var syncRpc = new Sync(new SyncPayload(movedPlayers));
             var syncJson = JsonConvert.SerializeObject(syncRpc);
-            server.Broadcast(syncJson);
+            broadcast(syncJson);
         }
     }
 }
