@@ -8,18 +8,22 @@ namespace WebSocketSample.Server
         const string SERVICE_NAME = "/";
         const ConsoleKey EXIT_KEY = ConsoleKey.Q;
 
-        public event Action OnUpdate = () => { };
+        GameModel model;
 
         WebSocketServer WebSocketServer;
 
         public GameServer(string address)
         {
-            var model = new GameModel(ref OnUpdate, SendTo, Broadcast);
+            model = new GameModel();
+            model.sendTo += SendTo;
+            model.broadcast += Broadcast;
             WebSocketServer = new WebSocketServer(address);
             WebSocketServer.AddWebSocketService<GameService>(SERVICE_NAME, () =>
             {
                 var service = new GameService();
-                model.SubscribeServiceEvent(service);
+                service.OnPing += model.OnPing;
+                service.OnLogin += model.OnLogin;
+                service.OnPlayerUpdate += model.OnPlayerUpdate;
                 return service;
             });
         }
@@ -31,7 +35,7 @@ namespace WebSocketSample.Server
 
             while (!IsInputtedExitKey())
             {
-                OnUpdate();
+                model.OnUpdate();
             }
         }
 

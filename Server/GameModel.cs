@@ -10,24 +10,15 @@ namespace WebSocketSample.Server
         Dictionary<int, Player> players = new Dictionary<int, Player>();
         int uidCounter;
 
-        Action<string, string> sendTo;
-        Action<string> broadcast;
+        public event Action<string, string> sendTo;
+        public event Action<string> broadcast;
 
-        public GameModel(ref Action onUpdate, Action<string, string> send, Action<string> broadcast)
+        public void OnUpdate()
         {
-            onUpdate += Sync;
-            this.sendTo = send;
-            this.broadcast = broadcast;
+            Sync();
         }
 
-        public void SubscribeServiceEvent(GameService service)
-        {
-            service.OnPing += OnPing;
-            service.OnLogin += OnLogin;
-            service.OnPlayerUpdate += OnPlayerUpdate;
-        }
-
-        void OnPing(string senderId)
+        public void OnPing(string senderId)
         {
             Console.WriteLine(">> Ping");
 
@@ -38,7 +29,7 @@ namespace WebSocketSample.Server
             Console.WriteLine("<< Pong");
         }
 
-        void OnLogin(string senderId, LoginPayload loginPayload)
+        public void OnLogin(string senderId, LoginPayload loginPayload)
         {
             Console.WriteLine(">> Login");
 
@@ -52,7 +43,7 @@ namespace WebSocketSample.Server
             Console.WriteLine(player.ToString() + " login.");
         }
 
-        void OnPlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
+        public void OnPlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
         {
             Console.WriteLine(">> PlayerUpdate");
 
