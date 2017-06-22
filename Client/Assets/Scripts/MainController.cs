@@ -171,21 +171,26 @@ public class MainController : MonoBehaviour
     {
         Debug.Log("<< OnSpawn");
 
+        SpawnItem(response.Item);
+    }
+
+    void SpawnItem(RPC.Item itemRpc)
+    {
         var itemObj = Instantiate(
             itemPrefab,
-            new Vector3(response.Item.Position.X, response.Item.Position.Y, response.Item.Position.Z),
+            new Vector3(itemRpc.Position.X, itemRpc.Position.Y, itemRpc.Position.Z),
             Quaternion.identity
         );
-        items.Add(response.Item.Id, itemObj);
+        items.Add(itemRpc.Id, itemObj);
 
         var item = itemObj.GetComponent<ItemController>();
-        item.ItemId = response.Item.Id;
+        item.ItemId = itemRpc.Id;
         item.OnGot += () =>
         {
             items.Remove(item.ItemId);
             Destroy(itemObj);
 
-            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(response.Item.Id));
+            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(item.ItemId));
             var getItemJson = JsonUtility.ToJson(getItemRpc);
             webSocket.Send(getItemJson);
 
