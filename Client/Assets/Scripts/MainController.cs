@@ -213,5 +213,12 @@ public class MainController : MonoBehaviour
     void OnEnvironment(RPC.EnvironmentPayload payload)
     {
         Debug.Log("<< Environment");
+
+        foreach (var itemRpc in payload.Items)
+        {
+            if (items.ContainsKey(itemRpc.Id)) continue;
+
+            SpawnItem(itemRpc);
+        }
     }
 }
