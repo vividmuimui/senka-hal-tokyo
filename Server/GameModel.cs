@@ -90,9 +90,8 @@ namespace WebSocketSample.Server
                 if (players.Count == 0) return;
 
                 var randomX = random.Next(-5, 5);
-                var randomY = random.Next(9, 11);
                 var randomZ = random.Next(-5, 5);
-                var spawnRpc = new Spawn(new SpawnPayload(new Position(randomX, randomY, randomZ)));
+                var spawnRpc = new Spawn(new SpawnPayload(new Position(randomX, 0.5f, randomZ)));
                 var spawnJson = JsonConvert.SerializeObject(spawnRpc);
                 broadcast(spawnJson);
 
