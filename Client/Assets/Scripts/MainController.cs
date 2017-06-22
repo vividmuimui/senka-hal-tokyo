@@ -160,7 +160,7 @@ public class MainController : MonoBehaviour
 
         Instantiate(
             itemPrefab,
-            new Vector3(response.Position.X, response.Position.Y, response.Position.Z),
+            new Vector3(response.Item.Position.X, response.Item.Position.Y, response.Item.Position.Z),
             Quaternion.identity
         );
     }
