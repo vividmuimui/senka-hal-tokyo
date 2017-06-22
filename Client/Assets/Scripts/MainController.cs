@@ -158,10 +158,13 @@ public class MainController : MonoBehaviour
     {
         Debug.Log("<< OnSpawn");
 
-        Instantiate(
+        var itemObj = Instantiate(
             itemPrefab,
             new Vector3(response.Item.Position.X, response.Item.Position.Y, response.Item.Position.Z),
             Quaternion.identity
         );
+
+        var item = itemObj.GetComponent<ItemController>();
+        item.ItemId = response.Item.Id;
     }
 }
