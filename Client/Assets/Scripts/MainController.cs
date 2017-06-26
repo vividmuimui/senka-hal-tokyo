@@ -214,6 +214,19 @@ public class MainController : MonoBehaviour
     {
         Debug.Log("<< Environment");
 
+        var serverUnknowItems = new List<KeyValuePair<int, GameObject>>();
+        foreach (var item in items)
+        {
+            if (payload.Items.Exists(itemRpc => itemRpc.Id == item.Key)) continue;
+
+            serverUnknowItems.Add(item);
+        }
+        foreach (var item in serverUnknowItems)
+        {
+            items.Remove(item.Key);
+            Destroy(item.Value);
+        }
+
         foreach (var itemRpc in payload.Items)
         {
             if (items.ContainsKey(itemRpc.Id)) continue;
