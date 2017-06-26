@@ -9,6 +9,7 @@ namespace WebSocketSample.Server
     public class GameModel
     {
         Dictionary<int, Player> players = new Dictionary<int, Player>();
+        Dictionary<int, Item> items = new Dictionary<int, Item>();
         int uidCounter;
 
         public event Action<string, string> sendTo;
@@ -60,6 +61,26 @@ namespace WebSocketSample.Server
             }
         }
 
+        public void OnGetItem(string senderId, GetItemPayload getItemPayload)
+        {
+            Console.WriteLine(">> GetItem");
+
+            var itemId = getItemPayload.ItemId;
+            if (items.ContainsKey(itemId))
+            {
+                items.Remove(itemId);
+
+                var deleteItemRpc = new DeleteItem(new DeleteItemPayload(itemId));
+                var deleteItemJson = JsonConvert.SerializeObject(deleteItemRpc);
+                broadcast(deleteItemJson);
+            }
+            else
+            {
+                // アイテムデュプリケートしている状態
+                Console.WriteLine("Not found ItemId: " + itemId);
+            }
+        }
+
         void Sync()
         {
             if (players.Count == 0) return;
@@ -91,7 +112,10 @@ namespace WebSocketSample.Server
 
                 var randomX = random.Next(-5, 5);
                 var randomZ = random.Next(-5, 5);
-                var spawnRpc = new Spawn(new SpawnPayload(new Position(randomX, 0.5f, randomZ)));
+                var item = new Item(uidCounter++, new Position(randomX, 0.5f, randomZ));
+                items.Add(item.Id, item);
+
+                var spawnRpc = new Spawn(new SpawnPayload(new RPC.Item(item.Id, item.Position)));
                 var spawnJson = JsonConvert.SerializeObject(spawnRpc);
                 broadcast(spawnJson);
 
