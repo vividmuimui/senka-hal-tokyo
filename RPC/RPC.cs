@@ -207,10 +207,12 @@ namespace WebSocketSample.RPC
     public class GetItemPayload
     {
         public int ItemId;
+        public int PlayerId;
 
-        public GetItemPayload(int itemId)
+        public GetItemPayload(int itemId, int playerId)
         {
             this.ItemId = itemId;
+            this.PlayerId = playerId;
         }
     }
 
