@@ -84,6 +84,12 @@ public class MainController : MonoBehaviour
                         MainThreadExecutor.Enqueue(() => OnDeleteItem(deleteMessage.Payload));
                         break;
                     }
+                case "environment":
+                    {
+                        var environmentMessage = JsonUtility.FromJson<RPC.Environment>(eventArgs.Data);
+                        MainThreadExecutor.Enqueue(() => OnEnvironment(environmentMessage.Payload));
+                        break;
+                    }
             }
         };
 
@@ -165,21 +171,26 @@ public class MainController : MonoBehaviour
     {
         Debug.Log("<< OnSpawn");
 
+        SpawnItem(response.Item);
+    }
+
+    void SpawnItem(RPC.Item itemRpc)
+    {
         var itemObj = Instantiate(
             itemPrefab,
-            new Vector3(response.Item.Position.X, response.Item.Position.Y, response.Item.Position.Z),
+            new Vector3(itemRpc.Position.X, itemRpc.Position.Y, itemRpc.Position.Z),
             Quaternion.identity
         );
-        items.Add(response.Item.Id, itemObj);
+        items.Add(itemRpc.Id, itemObj);
 
         var item = itemObj.GetComponent<ItemController>();
-        item.ItemId = response.Item.Id;
+        item.ItemId = itemRpc.Id;
         item.OnGot += () =>
         {
             items.Remove(item.ItemId);
             Destroy(itemObj);
 
-            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(response.Item.Id));
+            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(item.ItemId));
             var getItemJson = JsonUtility.ToJson(getItemRpc);
             webSocket.Send(getItemJson);
 
@@ -196,6 +207,31 @@ public class MainController : MonoBehaviour
         {
             Destroy(items[itemId]);
             items.Remove(itemId);
+        }
+    }
+
+    void OnEnvironment(RPC.EnvironmentPayload payload)
+    {
+        Debug.Log("<< Environment");
+
+        var serverUnknowItems = new List<KeyValuePair<int, GameObject>>();
+        foreach (var item in items)
+        {
+            if (payload.Items.Exists(itemRpc => itemRpc.Id == item.Key)) continue;
+
+            serverUnknowItems.Add(item);
+        }
+        foreach (var item in serverUnknowItems)
+        {
+            items.Remove(item.Key);
+            Destroy(item.Value);
+        }
+
+        foreach (var itemRpc in payload.Items)
+        {
+            if (items.ContainsKey(itemRpc.Id)) continue;
+
+            SpawnItem(itemRpc);
         }
     }
 }

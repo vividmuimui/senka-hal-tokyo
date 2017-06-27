@@ -48,6 +48,8 @@ namespace WebSocketSample.Server
             sendTo(loginResponseJson, senderId);
 
             Console.WriteLine(player.ToString() + " login.");
+
+            Environment(senderId);
         }
 
         public void OnPlayerUpdate(string senderId, PlayerUpdatePayload playerUpdatePayload)
@@ -122,6 +124,20 @@ namespace WebSocketSample.Server
                 Console.WriteLine("<< Spawn");
             };
             timer.Start();
+        }
+
+        void Environment(string toId)
+        {
+            var itemsRpc = new List<RPC.Item>();
+            foreach (var item in items.Values)
+            {
+                var itemRpc = new RPC.Item(item.Id, item.Position);
+                itemsRpc.Add(itemRpc);
+            }
+
+            var environmentRpc = new RPC.Environment(new EnvironmentPayload(itemsRpc));
+            var environmentJson = JsonConvert.SerializeObject(environmentRpc);
+            sendTo(environmentJson, toId);
         }
     }
 }
