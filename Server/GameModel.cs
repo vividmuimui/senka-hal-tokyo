@@ -40,7 +40,7 @@ namespace WebSocketSample.Server
         {
             Console.WriteLine(">> Login");
 
-            var player = new Player(uidCounter++, loginPayload.Name, new Position(0f, 0f, 0f));
+            var player = new Player(uidCounter++, loginPayload.Name, new Position(0f, 0f, 0f), 0);
             players[player.Uid] = player;
 
             var loginResponseRpc = new LoginResponse(new LoginResponsePayload(player.Uid));
@@ -71,6 +71,7 @@ namespace WebSocketSample.Server
             if (items.ContainsKey(itemId))
             {
                 items.Remove(itemId);
+                players[getItemPayload.PlayerId].Score++;
 
                 var deleteItemRpc = new DeleteItem(new DeleteItemPayload(itemId));
                 var deleteItemJson = JsonConvert.SerializeObject(deleteItemRpc);
@@ -92,7 +93,7 @@ namespace WebSocketSample.Server
             {
                 if (!player.isPositionChanged) continue;
 
-                var playerRpc = new RPC.Player(player.Uid, player.Position);
+                var playerRpc = new RPC.Player(player.Uid, player.Position, player.Score);
                 movedPlayers.Add(playerRpc);
                 player.isPositionChanged = false;
             }

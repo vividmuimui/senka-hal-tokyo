@@ -148,13 +148,18 @@ public class MainController : MonoBehaviour
         foreach (var player in payload.Players)
         {
             // 自分の座標は要らない
-            if (player.Id == playerId) continue;
+            if (player.Id == playerId)
+            {
+                playerObj.transform.localScale = CalcPlayerScale(player.Score);
+                continue;
+            }
 
             var playerPosition = new Vector3(player.Position.X, player.Position.Y, player.Position.Z);
             if (otherPlayerObjs.ContainsKey(player.Id))
             {
                 // 既にGameObjectが居たら位置更新
                 otherPlayerObjs[player.Id].transform.position = playerPosition;
+                otherPlayerObjs[player.Id].transform.localScale = CalcPlayerScale(player.Score);
             }
             else
             {
@@ -165,6 +170,11 @@ public class MainController : MonoBehaviour
                 Debug.Log("Instantiated a new player: " + player.Id);
             }
         }
+    }
+
+    Vector3 CalcPlayerScale(int score)
+    {
+        return Vector3.one + (Vector3.one * score * 0.2f);
     }
 
     void OnSpawn(RPC.SpawnPayload response)
@@ -190,7 +200,7 @@ public class MainController : MonoBehaviour
             items.Remove(item.ItemId);
             Destroy(itemObj);
 
-            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(item.ItemId));
+            var getItemRpc = new RPC.GetItem(new RPC.GetItemPayload(item.ItemId, playerId));
             var getItemJson = JsonUtility.ToJson(getItemRpc);
             webSocket.Send(getItemJson);
 
