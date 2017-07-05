@@ -165,6 +165,7 @@ public class MainController : MonoBehaviour
             {
                 // GameObjectが居なかったら新規作成
                 var otherPlayerObj = Instantiate(otherPlayerPrefab, playerPosition, Quaternion.identity) as GameObject;
+                otherPlayerObj.GetComponent<OtherPlayerController>().Id = player.Id;
                 otherPlayerObj.name = "Other" + player.Id;
                 otherPlayerObjs.Add(player.Id, otherPlayerObj);
                 Debug.Log("Instantiated a new player: " + player.Id);
