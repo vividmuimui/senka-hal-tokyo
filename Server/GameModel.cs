@@ -140,5 +140,10 @@ namespace WebSocketSample.Server
             var environmentJson = JsonConvert.SerializeObject(environmentRpc);
             sendTo(environmentJson, toId);
         }
+
+        public void OnCollision(string senderId, CollisionPayload payload)
+        {
+
+        }
     }
 }
