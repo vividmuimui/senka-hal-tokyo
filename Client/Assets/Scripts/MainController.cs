@@ -266,5 +266,9 @@ public class MainController : MonoBehaviour
             Destroy(otherPlayerObjs[payload.Id]);
             otherPlayerObjs.Remove(payload.Id);
         }
+        else if (payload.Id == playerId)
+        {
+            Destroy(playerObj);
+        }
     }
 }
