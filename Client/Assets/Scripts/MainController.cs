@@ -122,6 +122,13 @@ public class MainController : MonoBehaviour
         Debug.Log("<< LoginResponse");
         playerId = response.Id;
         playerObj = Instantiate(playerPrefab, new Vector3(0.0f, 0.5f, 0.0f), Quaternion.identity) as GameObject;
+        var playerController = playerObj.GetComponent<PlayerController>();
+        playerController.OnCollision += otherPlayerId =>
+        {
+            var collisionRpc = new RPC.Collision(new RPC.CollisionPayload(playerId, otherPlayerId));
+            var collisionJson = JsonUtility.ToJson(collisionRpc);
+            webSocket.Send(collisionJson);
+        };
     }
 
     void UpdatePosition()
