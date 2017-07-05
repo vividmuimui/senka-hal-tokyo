@@ -261,6 +261,10 @@ public class MainController : MonoBehaviour
 
     void OnDeletePlayer(RPC.DeletePlayerPayload payload)
     {
-
+        if (otherPlayerObjs.ContainsKey(payload.Id))
+        {
+            Destroy(otherPlayerObjs[payload.Id]);
+            otherPlayerObjs.Remove(payload.Id);
+        }
     }
 }
