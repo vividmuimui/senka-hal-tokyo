@@ -143,6 +143,9 @@ namespace WebSocketSample.Server
 
         public void OnCollision(string senderId, CollisionPayload payload)
         {
+            if (!players.ContainsKey(payload.AlphaId)) { return; }
+            if (!players.ContainsKey(payload.BravoId)) { return; }
+
             var alphaPlayer = players[payload.AlphaId];
             var bravoPlayer = players[payload.BravoId];
 
