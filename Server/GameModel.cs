@@ -143,7 +143,13 @@ namespace WebSocketSample.Server
 
         public void OnCollision(string senderId, CollisionPayload payload)
         {
+            var alphaPlayer = players[payload.AlphaId];
+            var bravoPlayer = players[payload.BravoId];
 
+            if (alphaPlayer.Score == bravoPlayer.Score) { return; }
+            var loser = alphaPlayer.Score < bravoPlayer.Score ? alphaPlayer : bravoPlayer;
+
+            Console.WriteLine("Loser :" + loser.Uid);
         }
     }
 }
