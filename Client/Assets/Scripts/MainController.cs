@@ -90,6 +90,12 @@ public class MainController : MonoBehaviour
                         MainThreadExecutor.Enqueue(() => OnEnvironment(environmentMessage.Payload));
                         break;
                     }
+                case "delete_player":
+                    {
+                        var deletePlayerMessage = JsonUtility.FromJson<RPC.DeletePlayer>(eventArgs.Data);
+                        MainThreadExecutor.Enqueue(() => OnDeletePlayer(deletePlayerMessage.Payload));
+                        break;
+                    }
             }
         };
 
@@ -251,5 +257,10 @@ public class MainController : MonoBehaviour
 
             SpawnItem(itemRpc);
         }
+    }
+
+    void OnDeletePlayer(RPC.DeletePlayerPayload payload)
+    {
+
     }
 }
