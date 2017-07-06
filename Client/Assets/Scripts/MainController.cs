@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
 using WebSocketSharp;
 using RPC = WebSocketSample.RPC;
 
@@ -90,6 +90,12 @@ public class MainController : MonoBehaviour
                         MainThreadExecutor.Enqueue(() => OnEnvironment(environmentMessage.Payload));
                         break;
                     }
+                case "delete_player":
+                    {
+                        var deletePlayerMessage = JsonUtility.FromJson<RPC.DeletePlayer>(eventArgs.Data);
+                        MainThreadExecutor.Enqueue(() => OnDeletePlayer(deletePlayerMessage.Payload));
+                        break;
+                    }
             }
         };
 
@@ -122,6 +128,13 @@ public class MainController : MonoBehaviour
         Debug.Log("<< LoginResponse");
         playerId = response.Id;
         playerObj = Instantiate(playerPrefab, new Vector3(0.0f, 0.5f, 0.0f), Quaternion.identity) as GameObject;
+        var playerController = playerObj.GetComponent<PlayerController>();
+        playerController.OnCollision += otherPlayerId =>
+        {
+            var collisionRpc = new RPC.Collision(new RPC.CollisionPayload(playerId, otherPlayerId));
+            var collisionJson = JsonUtility.ToJson(collisionRpc);
+            webSocket.Send(collisionJson);
+        };
     }
 
     void UpdatePosition()
@@ -165,6 +178,7 @@ public class MainController : MonoBehaviour
             {
                 // GameObjectが居なかったら新規作成
                 var otherPlayerObj = Instantiate(otherPlayerPrefab, playerPosition, Quaternion.identity) as GameObject;
+                otherPlayerObj.GetComponent<OtherPlayerController>().Id = player.Id;
                 otherPlayerObj.name = "Other" + player.Id;
                 otherPlayerObjs.Add(player.Id, otherPlayerObj);
                 Debug.Log("Instantiated a new player: " + player.Id);
@@ -243,5 +257,24 @@ public class MainController : MonoBehaviour
 
             SpawnItem(itemRpc);
         }
+    }
+
+    void OnDeletePlayer(RPC.DeletePlayerPayload payload)
+    {
+        if (otherPlayerObjs.ContainsKey(payload.Id))
+        {
+            Destroy(otherPlayerObjs[payload.Id]);
+            otherPlayerObjs.Remove(payload.Id);
+        }
+        else if (payload.Id == playerId)
+        {
+            Destroy(playerObj);
+            Invoke("RestartGame", 3);
+        }
+    }
+
+    void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

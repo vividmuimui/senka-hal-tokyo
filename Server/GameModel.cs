@@ -140,5 +140,23 @@ namespace WebSocketSample.Server
             var environmentJson = JsonConvert.SerializeObject(environmentRpc);
             sendTo(environmentJson, toId);
         }
+
+        public void OnCollision(string senderId, CollisionPayload payload)
+        {
+            if (!players.ContainsKey(payload.AlphaId)) { return; }
+            if (!players.ContainsKey(payload.BravoId)) { return; }
+
+            var alphaPlayer = players[payload.AlphaId];
+            var bravoPlayer = players[payload.BravoId];
+
+            if (alphaPlayer.Score == bravoPlayer.Score) { return; }
+            var loser = alphaPlayer.Score < bravoPlayer.Score ? alphaPlayer : bravoPlayer;
+
+            players.Remove(loser.Uid);
+
+            var deletePlayerRpc = new DeletePlayer(new DeletePlayerPayload(loser.Uid));
+            var deletePlayerJson = JsonConvert.SerializeObject(deletePlayerRpc);
+            broadcast(deletePlayerJson);
+        }
     }
 }
